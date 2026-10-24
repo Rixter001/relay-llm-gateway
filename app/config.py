@@ -39,6 +39,14 @@ class Settings(BaseSettings):
     # Used when the request does not set metadata.policy.
     default_policy: Literal["cost", "latency", "data_policy"] = "cost"
 
+    # --- Masking ---------------------------------------------------------------------------
+    # Masking is always on (there is deliberately no switch to disable it).
+    masking_languages: list[str] = ["en", "fr"]
+    masking_score_threshold: float = 0.35
+    # Demo/debug only: return the masked prompt (as the provider saw it) in the response.
+    # It contains placeholders, not PII, but keep it off in production anyway.
+    debug_show_masked_prompt: bool = False
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -33,8 +33,14 @@ def relay_env(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
 
 
 @pytest.fixture
-def client() -> Iterator[TestClient]:
+def client(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
+    from fakes import FakeAnalyzer
+
+    from app import main
     from app.main import app
+    from app.masking import Masker
+
+    monkeypatch.setattr(main, "build_masker", lambda settings: Masker(FakeAnalyzer(), ["en"]))
 
     # Using TestClient as a context manager runs the lifespan (startup/shutdown).
     with TestClient(app) as test_client:

@@ -1,0 +1,40 @@
+{"id": 1, "lang": "en", "text": "Please draft a polite reminder to Emily Johnson about the unpaid invoice.", "entities": [{"type": "PERSON", "value": "Emily Johnson"}]}
+{"id": 2, "lang": "en", "text": "Summarize this ticket: customer Michael Brown (michael.brown@example.com) cannot log in.", "entities": [{"type": "PERSON", "value": "Michael Brown"}, {"type": "EMAIL_ADDRESS", "value": "michael.brown@example.com"}]}
+{"id": 3, "lang": "en", "text": "Write a follow-up email to sarah.connor@techcorp.io confirming Tuesday's meeting.", "entities": [{"type": "EMAIL_ADDRESS", "value": "sarah.connor@techcorp.io"}]}
+{"id": 4, "lang": "en", "text": "Our client David Miller called from +44 20 7946 0958 asking for a refund.", "entities": [{"type": "PERSON", "value": "David Miller"}, {"type": "PHONE_NUMBER", "value": "+44 20 7946 0958"}]}
+{"id": 5, "lang": "en", "text": "Translate to French: 'Dear Robert Wilson, your parcel will arrive tomorrow.'", "entities": [{"type": "PERSON", "value": "Robert Wilson"}]}
+{"id": 6, "lang": "en", "text": "Check whether the IBAN DE89 3704 0044 0532 0130 00 belongs to a German bank.", "entities": [{"type": "IBAN_CODE", "value": "DE89 3704 0044 0532 0130 00"}]}
+{"id": 7, "lang": "en", "text": "Jennifer Lopez and Kevin Hart both asked to be removed from the newsletter.", "entities": [{"type": "PERSON", "value": "Jennifer Lopez"}, {"type": "PERSON", "value": "Kevin Hart"}]}
+{"id": 8, "lang": "en", "text": "Send the contract to priya.sharma@globex.co.uk and cc legal@globex.co.uk.", "entities": [{"type": "EMAIL_ADDRESS", "value": "priya.sharma@globex.co.uk"}, {"type": "EMAIL_ADDRESS", "value": "legal@globex.co.uk"}]}
+{"id": 9, "lang": "en", "text": "The supplier's bank account is ES91 2100 0418 4502 0005 1332, please verify the holder name.", "entities": [{"type": "IBAN_CODE", "value": "ES91 2100 0418 4502 0005 1332"}]}
+{"id": 10, "lang": "en", "text": "Call back Daniel Thompson on +33 6 12 34 56 78 before noon.", "entities": [{"type": "PERSON", "value": "Daniel Thompson"}, {"type": "PHONE_NUMBER", "value": "+33 6 12 34 56 78"}]}
+{"id": 11, "lang": "en", "text": "Rewrite this bio professionally: Hi, I'm Laura Martinez, a data analyst who loves hiking.", "entities": [{"type": "PERSON", "value": "Laura Martinez"}]}
+{"id": 12, "lang": "en", "text": "Employee Karim Benali moved to 27 quai des Chartrons, 33000 Bordeaux; update HR records.", "entities": [{"type": "PERSON", "value": "Karim Benali"}, {"type": "FR_ADDRESS", "value": "27 quai des Chartrons, 33000 Bordeaux"}]}
+{"id": 13, "lang": "en", "text": "Refund the payment to BE68 5390 0754 7034 and notify anna.schmidt@mail.de.", "entities": [{"type": "IBAN_CODE", "value": "BE68 5390 0754 7034"}, {"type": "EMAIL_ADDRESS", "value": "anna.schmidt@mail.de"}]}
+{"id": 14, "lang": "en", "text": "Generate a welcome message for our new hire, James Anderson.", "entities": [{"type": "PERSON", "value": "James Anderson"}]}
+{"id": 15, "lang": "en", "text": "My phone number is +1 212 555 0187, can you format it for a business card?", "entities": [{"type": "PHONE_NUMBER", "value": "+1 212 555 0187"}]}
+{"id": 16, "lang": "en", "text": "Classify the sentiment of this review from Olivia Davis: 'Terrible service, never again.'", "entities": [{"type": "PERSON", "value": "Olivia Davis"}]}
+{"id": 17, "lang": "en", "text": "Wire the deposit to NL91 ABNA 0417 1643 00 on behalf of Thomas Moreau.", "entities": [{"type": "IBAN_CODE", "value": "NL91 ABNA 0417 1643 00"}, {"type": "PERSON", "value": "Thomas Moreau"}]}
+{"id": 18, "lang": "en", "text": "Hi, this is Aisha Diallo, you can reach me at aisha.diallo@outlook.com or 07 81 22 33 44.", "entities": [{"type": "PERSON", "value": "Aisha Diallo"}, {"type": "EMAIL_ADDRESS", "value": "aisha.diallo@outlook.com"}, {"type": "PHONE_NUMBER", "value": "07 81 22 33 44"}]}
+{"id": 19, "lang": "fr", "text": "Rédige un mail de relance pour Sophie Martin concernant sa facture impayée.", "entities": [{"type": "PERSON", "value": "Sophie Martin"}]}
+{"id": 20, "lang": "fr", "text": "Bonjour, je suis Marie Dupont, j'habite au 12 rue de la Paix, 75002 Paris.", "entities": [{"type": "PERSON", "value": "Marie Dupont"}, {"type": "FR_ADDRESS", "value": "12 rue de la Paix, 75002 Paris"}]}
+{"id": 21, "lang": "fr", "text": "Mon numéro est le 06 12 34 56 78, rappelez-moi demain matin.", "entities": [{"type": "PHONE_NUMBER", "value": "06 12 34 56 78"}]}
+{"id": 22, "lang": "fr", "text": "Résume la réclamation de Lucas Bernard (lucas.bernard@orange.fr) en deux phrases.", "entities": [{"type": "PERSON", "value": "Lucas Bernard"}, {"type": "EMAIL_ADDRESS", "value": "lucas.bernard@orange.fr"}]}
+{"id": 23, "lang": "fr", "text": "Vérifie le RIB suivant : FR76 3000 6000 0112 3456 7890 189.", "entities": [{"type": "IBAN_CODE", "value": "FR76 3000 6000 0112 3456 7890 189"}]}
+{"id": 24, "lang": "fr", "text": "Le colis doit être livré au 45 avenue des Champs-Élysées, 75008 Paris avant vendredi.", "entities": [{"type": "FR_ADDRESS", "value": "45 avenue des Champs-Élysées, 75008 Paris"}]}
+{"id": 25, "lang": "fr", "text": "Camille Lefèvre a appelé depuis le 01 42 68 53 00 pour changer son rendez-vous.", "entities": [{"type": "PERSON", "value": "Camille Lefèvre"}, {"type": "PHONE_NUMBER", "value": "01 42 68 53 00"}]}
+{"id": 26, "lang": "fr", "text": "Écris une lettre de bienvenue à Julien Rousseau pour son premier jour.", "entities": [{"type": "PERSON", "value": "Julien Rousseau"}]}
+{"id": 27, "lang": "fr", "text": "Le virement de 1200 euros part vers FR28 1027 8079 0000 0207 0123 456, titulaire Nathalie Girard.", "entities": [{"type": "IBAN_CODE", "value": "FR28 1027 8079 0000 0207 0123 456"}, {"type": "PERSON", "value": "Nathalie Girard"}]}
+{"id": 28, "lang": "fr", "text": "Envoie la convocation à antoine.petit@laposte.net et à claire.roux@free.fr.", "entities": [{"type": "EMAIL_ADDRESS", "value": "antoine.petit@laposte.net"}, {"type": "EMAIL_ADDRESS", "value": "claire.roux@free.fr"}]}
+{"id": 29, "lang": "fr", "text": "Nouvelle adresse du client : 8 place Bellecour, 69002 Lyon. Mets à jour la fiche.", "entities": [{"type": "FR_ADDRESS", "value": "8 place Bellecour, 69002 Lyon"}]}
+{"id": 30, "lang": "fr", "text": "Pouvez-vous joindre Mme Isabelle Fontaine au +33 1 42 68 53 00 ?", "entities": [{"type": "PERSON", "value": "Isabelle Fontaine"}, {"type": "PHONE_NUMBER", "value": "+33 1 42 68 53 00"}]}
+{"id": 31, "lang": "fr", "text": "Traduis en anglais : « Pierre Lambert habite au 3 boulevard Saint-Michel, 75005 Paris. »", "entities": [{"type": "PERSON", "value": "Pierre Lambert"}, {"type": "FR_ADDRESS", "value": "3 boulevard Saint-Michel, 75005 Paris"}]}
+{"id": 32, "lang": "fr", "text": "Le dossier de Manon Leroy est complet, il manque seulement son IBAN FR14 2004 1010 0505 0001 3M02 606.", "entities": [{"type": "PERSON", "value": "Manon Leroy"}, {"type": "IBAN_CODE", "value": "FR14 2004 1010 0505 0001 3M02 606"}]}
+{"id": 33, "lang": "fr", "text": "Livraison prévue au 5 impasse des Lilas, 31000 Toulouse, contact : 07 55 44 33 22.", "entities": [{"type": "FR_ADDRESS", "value": "5 impasse des Lilas, 31000 Toulouse"}, {"type": "PHONE_NUMBER", "value": "07 55 44 33 22"}]}
+{"id": 34, "lang": "fr", "text": "Hugo Garnier et Léa Chevalier participeront à la réunion de lundi.", "entities": [{"type": "PERSON", "value": "Hugo Garnier"}, {"type": "PERSON", "value": "Léa Chevalier"}]}
+{"id": 35, "lang": "fr", "text": "Réponds à ce message de nicolas.faure@entreprise.fr qui demande un devis.", "entities": [{"type": "EMAIL_ADDRESS", "value": "nicolas.faure@entreprise.fr"}]}
+{"id": 36, "lang": "en", "text": "What is the capital of Australia?", "entities": []}
+{"id": 37, "lang": "en", "text": "Explain the difference between TCP and UDP in three bullet points.", "entities": []}
+{"id": 38, "lang": "fr", "text": "Quelle est la différence entre un CDD et un CDI ?", "entities": []}
+{"id": 39, "lang": "fr", "text": "Donne-moi une recette simple de crêpes pour quatre personnes.", "entities": []}
+{"id": 40, "lang": "en", "text": "Write a Python function that returns the 10th Fibonacci number.", "entities": []}
