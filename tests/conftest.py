@@ -12,10 +12,10 @@ from app.config import get_settings  # noqa: E402
 
 TEST_ENV = {
     "RELAY_ANTHROPIC_API_KEY": "test-anthropic-key",
-    "RELAY_ANTHROPIC_MODEL": "claude-test",
+    "RELAY_ANTHROPIC_MODEL": "claude-opus-5-5",
     "RELAY_ANTHROPIC_BASE_URL": "https://api.anthropic.test",
     "RELAY_GEMINI_API_KEY": "test-gemini-key",
-    "RELAY_GEMINI_MODEL": "gemini-test",
+    "RELAY_GEMINI_MODEL": "gemini-2.5-flash",
     "RELAY_GEMINI_BASE_URL": "https://gemini.test",
     "RELAY_OLLAMA_MODEL": "llama-test",
     "RELAY_OLLAMA_BASE_URL": "http://ollama.test",

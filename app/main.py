@@ -7,7 +7,8 @@ import httpx
 from fastapi import FastAPI, HTTPException, Request
 
 from app.config import get_settings
-from app.providers import Provider, ProviderError, build_providers
+from app.providers import Provider, build_providers
+from app.router import AllProvidersFailed, Policy, Router, RoutingError
 from app.schemas import (
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -29,7 +30,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         settings.provider_timeout_s, connect=settings.provider_connect_timeout_s
     )
     async with httpx.AsyncClient(timeout=timeout) as client:
-        app.state.providers = build_providers(settings, client)
+        providers = build_providers(settings, client)
+        app.state.providers = providers
+        app.state.router = Router(
+            providers,
+            default_policy=Policy(settings.default_policy),
+            failure_penalty_ms=settings.provider_timeout_s * 1000,
+        )
         yield
 
 
@@ -54,18 +61,17 @@ async def list_models(request: Request) -> ModelList:
 async def chat_completions(body: ChatCompletionRequest, request: Request) -> ChatCompletionResponse:
     if body.stream:
         raise HTTPException(400, "stream=true is not supported; Relay is non-streaming")
-    providers: dict[str, Provider] = request.app.state.providers
-    if not providers:
-        raise HTTPException(503, "no provider is configured")
+    router: Router = request.app.state.router
 
-    # Phase 2: a pinned model goes to its provider, "auto" goes to the first configured one.
-    provider = next((p for p in providers.values() if p.model == body.model), None)
-    provider = provider or next(iter(providers.values()))
     try:
-        result = await provider.complete(body.messages, body.max_tokens, body.temperature)
-    except ProviderError as exc:
-        raise HTTPException(502, f"provider failed: {exc.reason}") from exc
+        plan = router.plan(body.model, body.metadata)
+        outcome = await router.execute(plan, body.messages, body.max_tokens, body.temperature)
+    except RoutingError as exc:
+        raise HTTPException(exc.status_code, exc.message) from exc
+    except AllProvidersFailed as exc:
+        raise HTTPException(502, f"all providers failed: {exc}") from exc
 
+    result = outcome.result
     return ChatCompletionResponse(
         model=result.model,
         choices=[
@@ -79,5 +85,5 @@ async def chat_completions(body: ChatCompletionRequest, request: Request) -> Cha
             completion_tokens=result.completion_tokens,
             total_tokens=result.prompt_tokens + result.completion_tokens,
         ),
-        relay=RelayInfo(provider=provider.name, fallback_used=False),
+        relay=RelayInfo(provider=outcome.provider.name, fallback_used=outcome.fallback_used),
     )

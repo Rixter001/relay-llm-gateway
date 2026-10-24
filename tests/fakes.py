@@ -3,14 +3,14 @@
 from typing import Any
 
 ANTHROPIC_URL = "https://api.anthropic.test/v1/messages"
-GEMINI_URL = "https://gemini.test/v1beta/models/gemini-test:generateContent"
+GEMINI_URL = "https://gemini.test/v1beta/models/gemini-2.5-flash:generateContent"
 OLLAMA_URL = "http://ollama.test/api/chat"
 
 
 def anthropic_body(text: str, prompt_tokens: int = 10, completion_tokens: int = 5) -> Any:
     return {
         "id": "msg_1",
-        "model": "claude-test",
+        "model": "claude-opus-5-5",
         "content": [{"type": "thinking", "thinking": ""}, {"type": "text", "text": text}],
         "stop_reason": "end_turn",
         "usage": {"input_tokens": prompt_tokens, "output_tokens": completion_tokens},

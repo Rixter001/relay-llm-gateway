@@ -5,6 +5,7 @@ crashes immediately instead of failing on the first request.
 """
 
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -33,6 +34,10 @@ class Settings(BaseSettings):
     # TCP connection. See docs/DECISIONS.md for why the two are separate.
     provider_timeout_s: float = 60.0
     provider_connect_timeout_s: float = 3.0
+
+    # --- Routing ---------------------------------------------------------------------------
+    # Used when the request does not set metadata.policy.
+    default_policy: Literal["cost", "latency", "data_policy"] = "cost"
 
 
 @lru_cache

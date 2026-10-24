@@ -39,7 +39,7 @@ async def test_anthropic_request_and_response_mapping() -> None:
 async def test_gemini_request_and_response_mapping() -> None:
     route = respx.post(GEMINI_URL).mock(return_value=httpx.Response(200, json=gemini_body("Hi")))
     async with httpx.AsyncClient() as client:
-        provider = GeminiProvider(client, "gemini-test", "secret", "https://gemini.test")
+        provider = GeminiProvider(client, "gemini-2.5-flash", "secret", "https://gemini.test")
         result = await provider.complete(MESSAGES, max_tokens=50, temperature=None)
 
     request = route.calls.last.request
