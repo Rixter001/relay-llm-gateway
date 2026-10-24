@@ -8,3 +8,6 @@ useDefault = true
 description = "SHA-256 hashes of team API keys are not secrets (the keys themselves are never stored)"
 regexTarget = "line"
 regexes = ['''"api_key_sha256":\s*"[0-9a-f]{64}"''']
+# The public demo key, accepted only by the local demo stack (deploy/teams.demo.json) and shown
+# in the README examples. Any other key is still reported.
+stopwords = ["relay-demo-key"]
