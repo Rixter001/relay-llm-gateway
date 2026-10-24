@@ -51,11 +51,24 @@ def relay_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Iterator[None]
         )
     )
     monkeypatch.setenv("RELAY_TEAMS_FILE", str(teams_file))
+    monkeypatch.setenv("RELAY_DATABASE_URL", f"sqlite+aiosqlite:///{tmp_path / 'relay.db'}")
     for key, value in TEST_ENV.items():
         monkeypatch.setenv(key, value)
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
+
+
+def run_migrations() -> None:
+    """Create the schema with the real Alembic migrations (so they are tested too)."""
+    from alembic.config import Config
+
+    from alembic import command
+
+    root = Path(__file__).resolve().parents[1]
+    config = Config(str(root / "alembic.ini"))
+    config.set_main_option("script_location", str(root / "alembic"))
+    command.upgrade(config, "head")
 
 
 @pytest.fixture
@@ -69,6 +82,7 @@ def client(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
 
     monkeypatch.setattr(main, "build_masker", lambda settings: Masker(FakeAnalyzer(), ["en"]))
     monkeypatch.setattr(main, "create_redis", lambda settings: fakeredis.aioredis.FakeRedis())
+    run_migrations()
 
     # Using TestClient as a context manager runs the lifespan (startup/shutdown).
     with TestClient(app, headers={"Authorization": "Bearer test-key"}) as test_client:

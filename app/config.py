@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     teams_file: Path = Path("teams.json")
     redis_url: str = "redis://localhost:6379/0"
 
+    # --- Usage log -------------------------------------------------------------------------
+    database_url: str = "postgresql+asyncpg://relay:relay@localhost:5432/relay"
+
     # --- Providers -------------------------------------------------------------------------
     # SecretStr hides the value in repr() and logs; .get_secret_value() is needed to read it.
     anthropic_api_key: SecretStr | None = None
