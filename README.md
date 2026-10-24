@@ -1,5 +1,7 @@
 # Relay
 
+[![CI](https://github.com/Rixter001/relay-llm-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/Rixter001/relay-llm-gateway/actions/workflows/ci.yml)
+
 **An open-source enterprise LLM gateway: one OpenAI-compatible API in front of Claude, Gemini
 and a local Ollama model, with PII masking, per-team budgets and full observability.**
 
@@ -54,7 +56,7 @@ Requires Docker with Compose, `make` and Python 3. No cloud API key is needed: w
 Relay runs with the local Ollama model only.
 
 ```bash
-git clone https://github.com/<your-user>/relay-llm-gateway && cd relay-llm-gateway
+git clone https://github.com/Rixter001/relay-llm-gateway && cd relay-llm-gateway
 make up     # creates .env from .env.example, starts the 6 containers, pulls the Ollama model
 make demo   # sends a prompt full of PII and shows what the provider saw vs. what you got back
 ```
