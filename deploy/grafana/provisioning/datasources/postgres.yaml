@@ -1,0 +1,16 @@
+# Grafana reads the usage log directly from PostgreSQL, with a READ-ONLY user
+# (created by deploy/postgres/01-grafana-reader.sql).
+apiVersion: 1
+datasources:
+  - name: Relay Postgres
+    uid: relay-pg
+    type: grafana-postgresql-datasource
+    url: ${RELAY_PG_HOST}
+    user: grafana_reader
+    secureJsonData:
+      password: ${GRAFANA_DB_PASSWORD}
+    jsonData:
+      database: relay
+      sslmode: disable # inside the compose network; use require/verify-full in production
+      postgresVersion: 1600
+    isDefault: true

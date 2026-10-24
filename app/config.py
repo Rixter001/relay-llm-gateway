@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     # It contains placeholders, not PII, but keep it off in production anyway.
     debug_show_masked_prompt: bool = False
 
+    # --- Telemetry -------------------------------------------------------------------------
+    # OTLP/HTTP endpoint of the OpenTelemetry Collector, e.g. http://otel-collector:4318.
+    otel_exporter_endpoint: str | None = None
+    otel_service_name: str = "relay"
+
 
 @lru_cache
 def get_settings() -> Settings:

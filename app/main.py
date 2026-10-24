@@ -30,6 +30,7 @@ from app.schemas import (
     RelayInfo,
     Usage,
 )
+from app.telemetry import setup_tracing, tracer
 
 
 def build_masker(settings: Settings) -> Masker:
@@ -45,6 +46,7 @@ def create_redis(settings: Settings) -> Redis:
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
+    tracer_provider = setup_tracing(settings.otel_service_name, settings.otel_exporter_endpoint)
     app.state.teams = TeamDirectory.from_file(settings.teams_file)
     redis = create_redis(settings)
     app.state.limiter = Limiter(redis)
@@ -68,6 +70,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         yield
     await redis.aclose()
     await engine.dispose()
+    tracer_provider.force_flush()  # send the last batch of spans before exiting
 
 
 app = FastAPI(title="Relay", version="0.1.0", lifespan=lifespan)
@@ -107,18 +110,24 @@ async def chat_completions(
         fallback_used=False,
         masked_entities=0,
     )
-    try:
-        response = await _complete(body, request, team, log)
-        log.status_code = 200
-        return response
-    except HTTPException as exc:
-        log.status_code = exc.status_code
-        log.error = str(exc.detail)[:300]
-        raise
-    finally:
-        log.latency_ms = round((time.perf_counter() - started) * 1000)
-        usage_logger: UsageLogger = request.app.state.usage_logger
-        await usage_logger.log(log)
+    with tracer.start_as_current_span("relay.chat_completion") as span:
+        span.set_attribute("relay.team", team.name)
+        try:
+            response = await _complete(body, request, team, log)
+            log.status_code = 200
+            return response
+        except HTTPException as exc:
+            log.status_code = exc.status_code
+            log.error = str(exc.detail)[:300]
+            raise
+        finally:
+            log.latency_ms = round((time.perf_counter() - started) * 1000)
+            span.set_attribute("http.response.status_code", log.status_code)
+            span.set_attribute("relay.provider", log.provider or "")
+            span.set_attribute("relay.fallback_used", log.fallback_used)
+            span.set_attribute("relay.cost_usd", float(log.cost_usd or 0))
+            usage_logger: UsageLogger = request.app.state.usage_logger
+            await usage_logger.log(log)
 
 
 async def _complete(
@@ -142,7 +151,9 @@ async def _complete(
     # 1. Mask PII in every message (system, user and assistant history) with one mapping.
     #    Presidio is CPU-bound and synchronous, so it runs in a worker thread instead of
     #    blocking the event loop (which would stall every other request).
-    masked = await run_in_threadpool(masker.mask, [m.content for m in body.messages])
+    with tracer.start_as_current_span("relay.masking") as span:
+        masked = await run_in_threadpool(masker.mask, [m.content for m in body.messages])
+        span.set_attribute("relay.masked_entities", masked.count)
     log.masked_entities = masked.count
     masked_messages = [
         ChatMessage(role=m.role, content=text)
@@ -151,7 +162,11 @@ async def _complete(
 
     # 2. Route and call the provider (with fallback). Only masked text leaves Relay.
     try:
-        plan = router.plan(body.model, body.metadata)
+        with tracer.start_as_current_span("relay.routing") as span:
+            plan = router.plan(body.model, body.metadata)
+            span.set_attribute("relay.policy", plan.policy.value)
+            span.set_attribute("relay.sensitivity", plan.sensitivity.value)
+            span.set_attribute("relay.candidates", [p.name for p in plan.candidates])
         log.policy = plan.policy.value
         outcome = await router.execute(plan, masked_messages, body.max_tokens, body.temperature)
     except RoutingError as exc:
@@ -163,7 +178,8 @@ async def _complete(
     # 3. Put the original values back into the answer. The mapping is then dropped with the
     #    request; it is never stored anywhere.
     result = outcome.result
-    answer = unmask(result.text, masked.mapping)
+    with tracer.start_as_current_span("relay.unmasking"):
+        answer = unmask(result.text, masked.mapping)
 
     # 4. Charge the team for the ONE call that produced the answer (failed attempts during
     #    fallback returned no usage, so there is nothing to charge for them).

@@ -17,9 +17,12 @@ import time
 from dataclasses import dataclass, field
 from enum import StrEnum
 
+from opentelemetry import trace
+
 from app.pricing import price_for
 from app.providers import Provider, ProviderError, ProviderResult
 from app.schemas import ChatMessage
+from app.telemetry import tracer
 
 
 class Policy(StrEnum):
@@ -115,16 +118,26 @@ class Router:
         # Sequential, never parallel ("hedged") calls: only one provider is working on the
         # request at any time, so we never pay two providers for the same answer on purpose.
         failed: list[ProviderError] = []
-        for provider in plan.candidates:
+        for attempt, provider in enumerate(plan.candidates, start=1):
             started = time.perf_counter()
-            try:
-                result = await provider.complete(messages, max_tokens, temperature)
-            except ProviderError as exc:
-                failed.append(exc)
-                # A failing provider gets a big latency sample so the latency policy stops
-                # preferring it until it recovers.
-                self._record_latency(provider.name, self.failure_penalty_ms)
-                continue
+            with tracer.start_as_current_span("relay.provider_call") as span:
+                span.set_attribute("relay.provider", provider.name)
+                span.set_attribute("relay.model", provider.model)
+                span.set_attribute("relay.attempt", attempt)
+                try:
+                    result = await provider.complete(messages, max_tokens, temperature)
+                except ProviderError as exc:
+                    span.set_attribute("relay.outcome", "error")
+                    span.set_attribute("relay.error", exc.reason)
+                    span.set_status(trace.StatusCode.ERROR, exc.reason)
+                    failed.append(exc)
+                    # A failing provider gets a big latency sample so the latency policy stops
+                    # preferring it until it recovers.
+                    self._record_latency(provider.name, self.failure_penalty_ms)
+                    continue  # leaving the `with` block also ends the span
+                span.set_attribute("relay.outcome", "success")
+                span.set_attribute("relay.prompt_tokens", result.prompt_tokens)
+                span.set_attribute("relay.completion_tokens", result.completion_tokens)
             latency_ms = (time.perf_counter() - started) * 1000
             self._record_latency(provider.name, latency_ms)
             return RouteOutcome(result, provider, latency_ms, failed)

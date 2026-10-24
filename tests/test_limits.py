@@ -32,7 +32,7 @@ def test_team_directory_finds_by_key_hash() -> None:
 
 
 async def test_rate_limit_blocks_after_n_requests(redis: fakeredis.aioredis.FakeRedis) -> None:
-    limiter = Limiter(redis)
+    limiter = Limiter(redis, clock=lambda: 1_800_000_000.0)
     t = team(rate_limit_per_minute=3)
     for _ in range(3):
         await limiter.check_rate_limit(t)
@@ -95,6 +95,8 @@ def test_missing_or_wrong_key_is_rejected(client: TestClient) -> None:
 
 @respx.mock
 def test_rate_limit_through_api(client: TestClient) -> None:
+    # Freeze the clock so the three requests always fall in the same one-minute window.
+    client.app.state.limiter.clock = lambda: 1_800_000_000.0  # type: ignore[attr-defined]
     respx.post(OLLAMA_URL).mock(return_value=httpx.Response(200, json=ollama_body("ok")))
     limited = {"Authorization": "Bearer limited-key"}  # 2 requests/minute in conftest
     statuses = [

@@ -10,6 +10,7 @@ that silently stops enforcing budgets when its datastore blips is a cost and com
 
 import logging
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from decimal import Decimal
 
@@ -31,8 +32,9 @@ def budget_key(team: str, now: datetime) -> str:
 
 
 class Limiter:
-    def __init__(self, redis: Redis) -> None:
+    def __init__(self, redis: Redis, clock: Callable[[], float] = time.time) -> None:
         self.redis = redis
+        self.clock = clock  # injectable so tests can pin the current minute
 
     async def check_rate_limit(self, team: Team) -> None:
         """Fixed one-minute window: at most N requests per team per calendar minute.
@@ -40,7 +42,7 @@ class Limiter:
         Simpler than a sliding window, at the price of allowing a burst of up to 2N requests
         around a minute boundary. Good enough to stop a runaway script.
         """
-        now = int(time.time())
+        now = int(self.clock())
         window = now // 60
         key = f"relay:rate:{team.name}:{window}"
         try:
