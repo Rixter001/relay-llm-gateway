@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install -e ".[dev]"
+      - run: pip install -e ".[dev]" -e ./sdk
       - run: ruff check .
       - run: ruff format --check .
       - run: mypy
@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install -e ".[dev]"
+      - run: pip install -e ".[dev]" -e ./sdk
       # Fast suite: Presidio detection is replaced by a fake; the real models run below.
       - run: pytest -q -m "not presidio"
 
@@ -48,7 +48,7 @@ jobs:
           cache-dependency-path: |
             pyproject.toml
             requirements-models.txt
-      - run: pip install -e ".[dev]" -r requirements-models.txt
+      - run: pip install -e ".[dev]" -e ./sdk -r requirements-models.txt
       - run: pytest -q -m presidio
       # Fails the build if recall drops below the threshold; the table is shown on the run page.
       - run: python eval/masking/run_eval.py --min-recall 0.90
