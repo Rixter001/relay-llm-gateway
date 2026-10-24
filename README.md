@@ -222,7 +222,8 @@ What has been verified, and what has not:
 | Unit and integration tests (63 + 2 Presidio tests) | Pass locally (Windows, Python 3.12) |
 | Masking evaluation | Pass locally (numbers above) |
 | End-to-end request through the real app | Done locally with the real Presidio models and the real Alembic migration, but with SQLite instead of PostgreSQL, an in-memory Redis, and a stub instead of Ollama |
-| `docker compose` stack, `make up`, `make demo` | **Not run yet**: Docker was not available on the build machine |
+| Docker image | Builds in CI on every push |
+| `docker compose` stack, `make up`, `make demo` | **Not run yet** (Docker was not available on the development machine) |
 | Helm chart | `helm lint` and `helm template` pass; **not yet deployed to a cluster** (not tested with kind) |
 | OCI Terraform | `terraform fmt -check` and `terraform validate` pass; **not applied** to OCI |
 | Real Claude / Gemini calls | Not made (no API keys used); the adapters follow the public HTTP APIs and are tested against mocked responses |
