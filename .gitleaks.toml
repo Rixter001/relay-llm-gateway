@@ -1,0 +1,10 @@
+# gitleaks configuration: all default rules, plus one narrow exception.
+title = "Relay gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "SHA-256 hashes of team API keys are not secrets (the keys themselves are never stored)"
+regexTarget = "line"
+regexes = ['''"api_key_sha256":\s*"[0-9a-f]{64}"''']
