@@ -1,0 +1,12 @@
+Relay is deployed as {{ include "relay.fullname" . }} ({{ .Values.replicaCount }} replicas).
+
+Try it with a port-forward:
+  kubectl port-forward svc/{{ include "relay.fullname" . }} 8000:{{ .Values.service.port }}
+  curl -s localhost:8000/healthz
+
+Pods take a minute or two to become ready while the spaCy models load.
+{{- if not .Values.existingSecret }}
+
+WARNING: secrets come from values.yaml. In production, create the Secret separately and set
+existingSecret.
+{{- end }}

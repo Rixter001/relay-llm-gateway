@@ -53,6 +53,48 @@ jobs:
       # Fails the build if recall drops below the threshold; the table is shown on the run page.
       - run: python eval/masking/run_eval.py --min-recall 0.90
 
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: relay:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  helm:
+    name: Helm chart (lint + template)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.2
+      - run: helm lint deploy/helm/relay
+      - run: helm template relay deploy/helm/relay
+      - run: helm template relay deploy/helm/relay --set existingSecret=relay-secrets
+
+  terraform:
+    name: Terraform (fmt + validate)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: deploy/terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.1
+      - run: terraform fmt -check -recursive
+      # -backend=false: validate the code without any cloud credentials or state.
+      - run: terraform init -backend=false -input=false
+      - run: terraform validate
+
   secrets:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest

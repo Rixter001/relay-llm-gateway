@@ -1,0 +1,49 @@
+# Default values for the Relay chart.
+# PostgreSQL, Redis, Ollama and the OpenTelemetry Collector are NOT installed by this chart:
+# point Relay at your own (managed database, managed cache, existing collector).
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/your-org/relay
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+# Non-secret settings, passed as RELAY_* environment variables.
+config:
+  defaultPolicy: cost
+  ollamaBaseUrl: http://ollama.ollama.svc.cluster.local:11434
+  ollamaModel: llama3.2:3b
+  anthropicModel: claude-opus-5-5
+  geminiModel: gemini-2.5-flash
+  otelExporterEndpoint: http://otel-collector.observability.svc.cluster.local:4318
+  providerTimeoutSeconds: 60
+
+# Secret settings. In production, create the Secret yourself (or with External Secrets /
+# Sealed Secrets) and set existingSecret; the values below are then ignored.
+# The Secret needs the keys: database-url, redis-url, teams.json and optionally
+# anthropic-api-key, gemini-api-key.
+existingSecret: ""
+secrets:
+  databaseUrl: postgresql+asyncpg://relay:change-me@postgres:5432/relay
+  redisUrl: redis://redis:6379/0
+  anthropicApiKey: ""
+  geminiApiKey: ""
+  # JSON list of teams with the SHA-256 of their key (python -m app.auth new-key <team>).
+  teamsJson: "[]"
+
+resources:
+  # The two spaCy models need about 1 GiB of RAM once loaded.
+  requests:
+    cpu: 500m
+    memory: 1536Mi
+  limits:
+    memory: 2Gi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

@@ -63,6 +63,9 @@ def test_unmask_is_single_pass() -> None:
         ("J'habite au 12 rue de la Paix, 75002 Paris.", "12 rue de la Paix, 75002 Paris"),
         ("Livrer au 8 bis avenue Jean Jaurès 69007 Lyon", "8 bis avenue Jean Jaurès 69007 Lyon"),
         ("RDV au 5 impasse des Lilas, merci", "5 impasse des Lilas"),
+        # The city must start with a capital: the match stops before "last week".
+        ("arrive at 12 rue de la Paix, 75002 Paris last week", "12 rue de la Paix, 75002 Paris"),
+        ("au 3 Boulevard Saint-Michel, 75005 Paris.", "3 Boulevard Saint-Michel, 75005 Paris"),
     ],
 )
 def test_french_address_recognizer(text: str, expected: str) -> None:

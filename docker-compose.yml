@@ -1,0 +1,88 @@
+# Full local stack: relay, postgres, redis, ollama, otel-collector, grafana.
+# Start with `make up` (which also pulls the Ollama model), then `make demo`.
+# Passwords come from .env (copy .env.example); compose refuses to start without them.
+
+services:
+  relay:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      RELAY_DATABASE_URL: postgresql+asyncpg://relay:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/relay
+      RELAY_REDIS_URL: redis://redis:6379/0
+      RELAY_OLLAMA_BASE_URL: http://ollama:11434
+      RELAY_OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+      RELAY_OTEL_EXPORTER_ENDPOINT: http://otel-collector:4318
+      RELAY_TEAMS_FILE: /config/teams.json
+      RELAY_ANTHROPIC_API_KEY: ${RELAY_ANTHROPIC_API_KEY:-}
+      RELAY_GEMINI_API_KEY: ${RELAY_GEMINI_API_KEY:-}
+      # Single replica locally, so the container applies migrations itself at startup.
+      RELAY_RUN_MIGRATIONS: "true"
+      # Lets `make demo` show the masked prompt. Keep it off outside local demos.
+      RELAY_DEBUG_SHOW_MASKED_PROMPT: "true"
+    volumes:
+      - ./deploy/teams.demo.json:/config/teams.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+      otel-collector:
+        condition: service_started
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: relay
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: relay
+      GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:?set GRAFANA_DB_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Creates the read-only grafana_reader role on first start.
+      - ./deploy/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U relay -d relay"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  ollama:
+    image: ollama/ollama:0.5.7
+    volumes:
+      - ollama:/root/.ollama
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.111.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./deploy/otel-collector/config.yaml:/etc/otelcol/config.yaml:ro
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD in .env}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      RELAY_PG_HOST: postgres:5432
+      GRAFANA_DB_PASSWORD: ${GRAFANA_DB_PASSWORD:?set GRAFANA_DB_PASSWORD in .env}
+    volumes:
+      - ./deploy/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./deploy/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
+  ollama:

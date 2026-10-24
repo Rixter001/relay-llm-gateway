@@ -1,0 +1,6 @@
+apiVersion: v2
+name: relay
+description: Relay, an enterprise LLM gateway (PII masking, routing, budgets, observability)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

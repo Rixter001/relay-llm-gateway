@@ -1,0 +1,4 @@
+# Copy to terraform.tfvars (git-ignored) and fill in.
+compartment_ocid = "ocid1.compartment.oc1..replace-me"
+region           = "eu-paris-1"
+api_allowed_cidr = "203.0.113.0/24" # your office or VPN range

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "relay.fullname" . }}
+  labels:
+    {{- include "relay.labels" . | nindent 4 }}
+data:
+  RELAY_DEFAULT_POLICY: {{ .Values.config.defaultPolicy | quote }}
+  RELAY_OLLAMA_BASE_URL: {{ .Values.config.ollamaBaseUrl | quote }}
+  RELAY_OLLAMA_MODEL: {{ .Values.config.ollamaModel | quote }}
+  RELAY_ANTHROPIC_MODEL: {{ .Values.config.anthropicModel | quote }}
+  RELAY_GEMINI_MODEL: {{ .Values.config.geminiModel | quote }}
+  RELAY_OTEL_EXPORTER_ENDPOINT: {{ .Values.config.otelExporterEndpoint | quote }}
+  RELAY_PROVIDER_TIMEOUT_S: {{ .Values.config.providerTimeoutSeconds | quote }}
+  RELAY_TEAMS_FILE: /config/teams.json

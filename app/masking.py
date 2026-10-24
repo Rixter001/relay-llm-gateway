@@ -41,10 +41,13 @@ def french_address_recognizer(language: str) -> PatternRecognizer:
     Presidio has no French address recognizer, and spaCy only tags pieces of an address as
     LOCATION, so the whole address is matched with a pattern instead.
     """
-    number = r"\b\d{1,4}(?:\s?(?:bis|ter))?,?\s+"
-    street = rf"(?:{_STREET_TYPES})\s+[A-Za-zÀ-ÿ'’\- ]{{2,60}}?"
+    # Only the street type and "bis/ter" are case-insensitive ("rue", "Rue", "AVENUE"). The city
+    # must start with a capital letter: that is what stops the match after "75002 Paris" in
+    # "75002 Paris last week".
+    number = r"\b\d{1,4}(?:\s?(?i:bis|ter))?,?\s+"
+    street = rf"(?i:{_STREET_TYPES})\s+[A-Za-zÀ-ÿ'’\- ]{{2,60}}?"
     # Street name without postcode: whole words (up to 6) until punctuation or end of text.
-    street_words = rf"(?:{_STREET_TYPES})\s+[A-Za-zÀ-ÿ'’\-]+(?: [A-Za-zÀ-ÿ'’\-]+){{0,5}}"
+    street_words = rf"(?i:{_STREET_TYPES})\s+[A-Za-zÀ-ÿ'’\-]+(?: [A-Za-zÀ-ÿ'’\-]+){{0,5}}"
     postcode_city = r",?\s+\d{5}\s+[A-ZÀ-Ý][A-Za-zÀ-ÿ'’\-]+(?:[ \-][A-ZÀ-Ý][A-Za-zÀ-ÿ'’\-]+)*"
     patterns = [
         # Full address with postcode and city: very reliable.
@@ -56,7 +59,8 @@ def french_address_recognizer(language: str) -> PatternRecognizer:
         supported_entity="FR_ADDRESS",
         patterns=patterns,
         supported_language=language,
-        global_regex_flags=re.IGNORECASE | re.UNICODE,
+        # Presidio applies IGNORECASE to every pattern by default; we need case for the city.
+        global_regex_flags=re.UNICODE,
         name=f"FrenchAddressRecognizer_{language}",
     )
 

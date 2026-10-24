@@ -1,0 +1,8 @@
+[
+  {
+    "name": "demo",
+    "api_key_sha256": "bbff4a4dc5895cc368930102d33b92ad644f6aaa796e912bbdca2e60a2cefe0b",
+    "rate_limit_per_minute": 30,
+    "monthly_budget_usd": 5.0
+  }
+]
