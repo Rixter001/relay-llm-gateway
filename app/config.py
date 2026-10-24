@@ -5,6 +5,7 @@ crashes immediately instead of failing on the first request.
 """
 
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import SecretStr
@@ -15,6 +16,11 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="RELAY_", env_file=".env", extra="ignore")
 
     environment: str = "dev"
+
+    # --- Teams, limits ---------------------------------------------------------------------
+    # JSON list of teams with the SHA-256 of their API key (see app/auth.py).
+    teams_file: Path = Path("teams.json")
+    redis_url: str = "redis://localhost:6379/0"
 
     # --- Providers -------------------------------------------------------------------------
     # SecretStr hides the value in repr() and logs; .get_secret_value() is needed to read it.

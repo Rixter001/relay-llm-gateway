@@ -124,7 +124,7 @@ def test_api_falls_back_on_timeout(client: TestClient) -> None:
         "provider": "gemini",
         "fallback_used": True,
         "masked_entities": 0,
-        "cost_usd": 0.0,
+        "cost_usd": 1.55e-05,  # 10 x $0.30/M input + 5 x $2.50/M output
         "masked_messages": None,
     }
 

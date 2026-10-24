@@ -1,3 +1,4 @@
+import json
 import sys
 from collections.abc import Iterator
 from pathlib import Path
@@ -22,9 +23,34 @@ TEST_ENV = {
 }
 
 
+# Three test teams: a normal one, one with a tiny rate limit, one with a $0 budget.
+TEST_TEAMS = [
+    ("default", "test-key", 1000, 100.0),
+    ("limited", "limited-key", 2, 100.0),
+    ("broke", "broke-key", 1000, 0.0),
+]
+
+
 @pytest.fixture(autouse=True)
-def relay_env(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+def relay_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Iterator[None]:
     """Point every provider at a fake URL and reset the cached settings around each test."""
+    from app.auth import hash_key
+
+    teams_file = tmp_path / "teams.json"
+    teams_file.write_text(
+        json.dumps(
+            [
+                {
+                    "name": name,
+                    "api_key_sha256": hash_key(key),
+                    "rate_limit_per_minute": rate,
+                    "monthly_budget_usd": budget,
+                }
+                for name, key, rate, budget in TEST_TEAMS
+            ]
+        )
+    )
+    monkeypatch.setenv("RELAY_TEAMS_FILE", str(teams_file))
     for key, value in TEST_ENV.items():
         monkeypatch.setenv(key, value)
     get_settings.cache_clear()
@@ -34,6 +60,7 @@ def relay_env(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
 
 @pytest.fixture
 def client(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
+    import fakeredis
     from fakes import FakeAnalyzer
 
     from app import main
@@ -41,7 +68,8 @@ def client(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
     from app.masking import Masker
 
     monkeypatch.setattr(main, "build_masker", lambda settings: Masker(FakeAnalyzer(), ["en"]))
+    monkeypatch.setattr(main, "create_redis", lambda settings: fakeredis.aioredis.FakeRedis())
 
     # Using TestClient as a context manager runs the lifespan (startup/shutdown).
-    with TestClient(app) as test_client:
+    with TestClient(app, headers={"Authorization": "Bearer test-key"}) as test_client:
         yield test_client
